@@ -1,13 +1,13 @@
 const express = require("express")
+const morgan = require("morgan")
 const app = express()
-const morgan = require('morgan')
 
 app.use(morgan("dev"))
 app.use(express.json())
 app.use("/uploads", express.static("uploads"))
 
 const rotaProdutos = require("./routes/produtos.routes")
-const morgan = require("morgan")
+const rotaVendedores = require("./routes/vendedores.routes")
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*")
@@ -23,12 +23,13 @@ app.use((req, res, next) => {
 })
 
 app.use("/produtos", rotaProdutos)
+app.use("/vendedores", rotaVendedores)
 
-app.use((req, res) => {
-    res.status(200).send({
-        message: "rodando"
-    })
-})
+// app.use((req, res) => {
+//     res.status(200).send({
+//         message: "rodando"
+//     })
+// })
 
 
 //quando não encontrar uma rota
