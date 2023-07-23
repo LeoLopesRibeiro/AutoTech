@@ -34,13 +34,13 @@ app.use("/vendedores", rotaVendedores)
 
 //quando não encontrar uma rota
 app.use((req, res, next) => {
-    const erro = new Error("Não foi possível encontrrt uma rota")
+    const erro = new Error("Não foi possível encontrar uma rota")
     erro.status(404)
     next(erro)
 })
 
 app.use((error, req, res, next) => {
-    res.status(error.status || 500)
+    res.status(error || 500)
 
     return res.send({
         erro: {

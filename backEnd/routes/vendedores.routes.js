@@ -92,11 +92,11 @@ router.post("/cadastro", (req, res) => {
                                     erro: error,
                                 });
                             }
-                            res.status(201).send({
-                                message: "Vendedor cadastrado com sucesso!",
-                                tipoCadastro: tipo,
-                                idVendedor: result.insertId,
-                            });
+                            if (error) {
+                                return res.status(500).send({
+                                    error: error
+                                })
+                            }
                         })
                     })
                 })
@@ -104,6 +104,8 @@ router.post("/cadastro", (req, res) => {
         })
     })
 })
+
+
 
 
 module.exports = router
