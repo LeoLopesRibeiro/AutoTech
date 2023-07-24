@@ -3,9 +3,9 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 
-
-router.get("/", (req, res) =>{
-    db.getConnection((error, conn) =>{
+//buscar todos os vendedores
+router.get("/", (req, res) => {
+    db.getConnection((error, conn) => {
         if (error) {
             return res.status(500).send({
                 mensagem: "Não foi possível realizar a conexão",
@@ -14,14 +14,41 @@ router.get("/", (req, res) =>{
         }
         const query = "SELECT * FROM vendedores"
 
-        db.query(query, (error, result) =>{
+        db.query(query, (error, result) => {
             conn.release()
             if (error) {
                 return res.status(500).send({
                     error: error
                 })
             }
-            res.status(200).send({result: result})
+            res.status(200).send({ result: result })
+        })
+    })
+})
+
+//buscar um vendedor uníco vendedor
+
+router.get("/:id_vendedor", (req, res) => {
+    const id_vendedor = req.params.id_vendedor
+
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+        }
+        const query = `SELECT * FROM vendedores WHERE idVendedor=${id_vendedor}`
+
+
+        db.query(query, (error, result) => {
+            conn.release()
+            if (error) {
+                return res.status(500).send({
+                    error: error
+                })
+            }
+            res.status(200).send({ result: result })
         })
     })
 })
@@ -35,7 +62,7 @@ router.post("/cadastro", (req, res) => {
         return res.status(422).send({ mensagem: "O email é obrigatório!" })
     }
     if (!cpnj) {
-        return res.status(422).send({ mensagem: "cnpj ou cpf é obrigatório!" })
+        return res.status(422).send({ mensagem: "O cnpj ou cpf é obrigatório!" })
 
     } else {
         if (cpnj.length < 13) {
@@ -60,7 +87,7 @@ router.post("/cadastro", (req, res) => {
             })
         }
 
-        const query = `SELECT * FROM vendedores WHERE ${tipo}=${cpnj}`
+        const query = `SELECT * FROM vendedores WHERE ${tipo}=${cpnj} OR emailVendedor='${email}'`
 
         conn.query(query, (error, result) => {
             // conn.release()
@@ -71,7 +98,7 @@ router.post("/cadastro", (req, res) => {
             }
             console.log(result)
             if (result.length > 0) {
-                return res.status(409).send({ message: "Vendedor já cadastado!" });
+                return res.status(409).send({ message: "Email ou cpf/cnpj ja cadastrado!" });
             } else {
                 bcrypt.genSalt(10, (error, salt) => {
                     if (error) {
@@ -92,11 +119,11 @@ router.post("/cadastro", (req, res) => {
                                     erro: error,
                                 });
                             }
-                            if (error) {
-                                return res.status(500).send({
-                                    error: error
-                                })
-                            }
+                            res.status(201).send({
+                                message: "Vendedor cadastrado com sucesso!",
+                                tipoCadastro: tipo,
+                                idVendedor: result.insertId,
+                            });
                         })
                     })
                 })
@@ -105,6 +132,31 @@ router.post("/cadastro", (req, res) => {
     })
 })
 
+
+router.put("/editar/:id_vendedor", (req, res) => {
+    const id_vendedor = req.params.id_vendedor
+
+    const { nome, email } = req.body
+
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+        }
+        const query = `UPDATE vendedores SET nome = '${nome}', email = '${email}' WHERE idVendedor = ${id_vendedor}`
+        conn.query(query, (error, result) => {
+            if (error) {
+                return res.status(500).send({
+                    error: error
+                })
+            }
+
+            res.status(200).send({mensagem: "Dados alterados com sucesso!"})
+        })
+    })
+})
 
 
 

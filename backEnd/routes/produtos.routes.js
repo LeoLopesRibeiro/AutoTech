@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const db = require("../conexao")
 const multipleImages = require('../middlewares/uploadImage')
+const fs = require('fs')
 
 //rota de buscar todos os produtos
 router.get("/", (req, res) => {
@@ -60,7 +61,6 @@ router.get("/:id_produto", (req, res) => {
 })
 
 
-
 //buscar um produto pelo id do vendedor
 router.get("/produtos-vendedor/:id_vendedor", (req, res) => {
     const id_vendedor = req.params.id_vendedor
@@ -90,7 +90,6 @@ router.get("/produtos-vendedor/:id_vendedor", (req, res) => {
         })
     })
 })
-
 
 //buscar produto pela categoria
 router.get("/categorias/:categorias", (req, res) => {
@@ -122,19 +121,7 @@ router.post("/cadastro/:id", multipleImages, (req, res) => {
     const id_vendedor = req.params.id
     const imagem = req.files
     const { nome, estoque, preco, categoria, descricao, cepEstoque } = req.body
-
     // console.log(imagem.imagem[1].path)
-
-    var caminhos = ""
-    req.files.imagem.forEach(imagem => {
-        if (caminhos.length === 0) {
-            caminhos = imagem.path
-            console.log(caminhos)
-        } else {
-            caminhos = `${caminhos},${imagem.path}`
-            console.log(caminhos)
-        }
-    });
 
     if (!nome) {
         return res.status(422).send({ mensagem: "O nome é obrigatório!" })
@@ -148,6 +135,16 @@ router.post("/cadastro/:id", multipleImages, (req, res) => {
     if (!imagem) {
         return res.status(422).send({ mensagem: "A imagem é obrigatória!" })
     }
+    let caminhos = ""
+    req.files.imagem.forEach(imagem => {
+        if (caminhos.length === 0) {
+            caminhos = imagem.path
+            console.log(caminhos)
+        } else {
+            caminhos = `${caminhos},${imagem.path}`
+            console.log(caminhos)
+        }
+    });
     if (!categoria) {
         return res.status(422).send({ mensagem: "A categoria é obrigatória!" })
     }
@@ -180,5 +177,130 @@ router.post("/cadastro/:id", multipleImages, (req, res) => {
         })
     })
 })
+
+router.put("/editar-produto/:id_produto", multipleImages, (req, res) => {
+    const id_produto = req.params.id_produto
+    const imagem = req.files
+    const { nome, estoque, preco, id_vendedor, categoria, descricao, cepEstoque } = req.body
+
+    if (!nome) {
+        return res.status(422).send({ mensagem: "O nome é obrigatório!" })
+    }
+    if (!estoque) {
+        return res.status(422).send({ mensagem: "A quantidade em estoque é obrigatória!" })
+    }
+    if (!preco) {
+        return res.status(422).send({ mensagem: "O preço é obrigatório!" })
+    }
+
+    if (!categoria) {
+        return res.status(422).send({ mensagem: "A categoria é obrigatória!" })
+    }
+    if (!descricao) {
+        return res.status(422).send({ mensagem: "A descrição é obrigatória!" })
+    }
+    if (!cepEstoque) {
+        return res.status(422).send({ mensagem: "O cep do estoque é obrigatório!" })
+    }
+
+    let caminhos = ""
+    req.files.imagem.forEach(imagem => {
+        if (caminhos.length === 0) {
+            caminhos = imagem.path
+            console.log(caminhos)
+        } else {
+            caminhos = `${caminhos},${imagem.path}`
+            console.log(caminhos)
+        }
+    });
+
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+        }
+        const query_get = `SELECT * FROM produtos WHERE id_vendedor=${id_vendedor} AND idProduto=${id_produto}`
+        conn.query(query_get, (error, result) => {
+            if (error) {
+                return res.status(500).send({
+                    error: error
+                })
+            }
+
+            if (result.length > 0) {
+                const fotosAntigas = result[0].imagem.split(",")
+
+                // console.log(fotosAntigas)
+                if (imagem) {
+                    const query = `UPDATE produtos SET nome = '${nome}', imagem = ?, estoque = '${estoque}', preco = '${preco}', categoria = '${categoria}', descricao = '${descricao}', cepEstoque = '${cepEstoque}' WHERE idProduto = ${id_produto}`;
+                    conn.query(query, [caminhos], (error, result) => {
+                        conn.release();
+                        if (error) {
+                            return res.status(500).send({ error: error });
+                        }
+
+                        fotosAntigas.forEach((imagem) => {
+                            fs.unlinkSync(imagem);
+                        })
+                    })
+                } else {
+                    const query = `UPDATE produtos SET nome = '${nome}', imagem = ?, estoque = '${estoque}', preco = '${preco}', categoria = '${categoria}', descricao = '${descricao}', cepEstoque = '${cepEstoque}' WHERE idProduto = ${id_produto}`;
+                    conn.query(query, [result[0].imagem], (error, result) => {
+                        conn.release();
+                        if (error) {
+                            return res.status(500).send({ error: error });
+                        }
+                        fotosAntigas.forEach((imagem) => {
+                            fs.unlinkSync(imagem);
+                        })
+                    })
+                }
+                return res.status(200).send({ message: "Dados alterados com sucesso." });
+            }
+            res.status(401).send({ mensagem: "Você não tem permissão para realizar esta ação!" })
+        })
+    })
+})
+
+router.delete("/apagar-produto/:id_produto", (req, res) => {
+    const id_produto = req.params.id_produto
+    const { id_vendedor } = req.body
+
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+        }
+        const query_get = `SELECT * FROM produtos WHERE id_vendedor=${id_vendedor} AND idProduto=${id_produto}`
+        conn.query(query_get, (error, result) => {
+            if (error) {
+                return res.status(500).send({ error: error });
+            }
+            const fotosAntigas = result[0].imagem.split(",")
+            if (result.length > 0) {
+                const query = `DELETE FROM produtos WHERE id_vendedor=${id_vendedor} AND idProduto=${id_produto}`
+
+                conn.query(query, (error, result) => {
+                    conn.release()
+                    if (error) {
+                        return res.status(500).send({ error: error })
+                    }
+                    
+                    fotosAntigas.forEach((imagem) => {
+                        fs.unlinkSync(imagem);
+                    })
+                    return res.status(200).send({ mensagem: "Produto deletado com sucesso!" })
+                })
+            } else {
+                return res.status(401).send({ mensagem: "Você não tem permissão para realizar esta ação!" })
+            }
+        })
+    })
+})
+
 
 module.exports = router
