@@ -9,6 +9,7 @@ app.use("/uploads", express.static("uploads"))
 const rotaProdutos = require("./routes/produtos.routes")
 const rotaVendedores = require("./routes/vendedores.routes")
 const rotaClientes = require("./routes/clientes.routes")
+const rotaCompras = require("./routes/compras.routes")
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*")
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 app.use("/produtos", rotaProdutos)
 app.use("/vendedores", rotaVendedores)
 app.use("/clientes", rotaClientes)
+app.use("/compras", rotaCompras)
 
 // app.use((req, res) => {
 //     res.status(200).send({
