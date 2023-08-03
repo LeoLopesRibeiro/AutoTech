@@ -43,7 +43,7 @@ router.get("/:id_produto", (req, res) => {
 
         }
 
-        const query = `SELECT * FROM produtos WHERE idProduto=${id_produto}`
+        const query = `SELECT * FROM produtos AS p INNER JOIN vendedores AS v ON p.id_vendedor=v.idVendedor WHERE idProduto=${id_produto}`
 
         conn.query(query, (error, result) => {
             conn.release()
@@ -54,14 +54,29 @@ router.get("/:id_produto", (req, res) => {
             }
 
             res.status(200).send({
-                result: result
+                result: {
+                    idProduto: result[0].idProduto,
+                    nome: result[0].nome,
+                    imagem: result[0].imagem,
+                    categoria: result[0].categoria,
+                    cepEstoque: result[0].cepEstoque,
+                    avaliacaoProduto: result[0].avaliacaoProduto,
+                    estoque: result[0].estoque,
+                    vendedor: {
+                        idVendedor: result[0].idVendedor,
+                        cpfVendedor: result[0].cpfVendedor,
+                        cnpjVendedor: result[0].cnpjVendedor,
+                        emailVendedor: result[0].emailVendedor,
+                        avaliacaoVendedor: result[0].avaliacaoVendedor,
+                    }
+                }
             })
         })
     })
 })
 
 
-//buscar um produto pelo id do vendedor
+//buscar produtos pelo id do vendedor
 router.get("/produtos-vendedor/:id_vendedor", (req, res) => {
     const id_vendedor = req.params.id_vendedor
 
@@ -264,6 +279,7 @@ router.put("/editar-produto/:id_produto", multipleImages, (req, res) => {
     })
 })
 
+//****//
 router.delete("/apagar-produto/:id_produto", (req, res) => {
     const id_produto = req.params.id_produto
     const { id_vendedor } = req.body
@@ -289,7 +305,7 @@ router.delete("/apagar-produto/:id_produto", (req, res) => {
                     if (error) {
                         return res.status(500).send({ error: error })
                     }
-                    
+
                     fotosAntigas.forEach((imagem) => {
                         fs.unlinkSync(imagem);
                     })

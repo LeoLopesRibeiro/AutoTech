@@ -13,6 +13,7 @@ router.get("/", (req, res) => {
         }
         const query = `SELECT * FROM clientes`
         conn.query(query, (error, result) => {
+            conn.release()
             if (error) {
                 return res.status(500).send({ error: error })
             }
@@ -33,6 +34,7 @@ router.get("/:id", (req, res) => {
         }
         const query = `SELECT * FROM clientes WHERE idCliente=${id_cliente}`
         conn.query(query, (error, result) => {
+            conn.release()
             if(error){
                 return res.status(500).send({error: error})
             }
@@ -104,6 +106,37 @@ router.post("/cadastro", (req, res) => {
                 })
             }
         })
+    })
+})
+
+router.put("/editar/:id", (req, res) => {
+    const id_cliente = req.params.id
+    const {nome, email} = req.body
+
+    if (!nome) {
+        return res.status(422).send({ mensagem: "O nome é obrigatório!" })
+    }
+    if (!email) {
+        return res.status(422).send({ mensagem: "O email é obrigatório!" })
+    }
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+        }
+
+        const query = `UPDATE clientes SET nome = '${nome}', email = '${email}' WHERE idProduto = ${id_cliente}`
+        conn.query(query, (error, result) => {
+            conn.release()
+            if(error){
+                return res.status(500).send({error: error})
+            }
+
+            res.status(200).send({mensagem: "Dados alterados com sucesso!"})
+        })
+        
     })
 })
 
