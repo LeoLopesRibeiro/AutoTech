@@ -132,8 +132,8 @@ router.get("/categorias/:categorias", (req, res) => {
     })
 })
 
-router.post("/cadastro/:id", multipleImages, (req, res) => {
-    const id_vendedor = req.params.id
+router.post("/cadastro/:id_vendedor", multipleImages, (req, res) => {
+    const id_vendedor = req.params.id_vendedor
     const imagem = req.files
     const { nome, estoque, preco, categoria, descricao, cepEstoque } = req.body
     // console.log(imagem.imagem[1].path)
@@ -154,10 +154,10 @@ router.post("/cadastro/:id", multipleImages, (req, res) => {
     req.files.imagem.forEach(imagem => {
         if (caminhos.length === 0) {
             caminhos = imagem.path
-            console.log(caminhos)
+            // console.log(caminhos)
         } else {
             caminhos = `${caminhos},${imagem.path}`
-            console.log(caminhos)
+            // console.log(caminhos)
         }
     });
     if (!categoria) {

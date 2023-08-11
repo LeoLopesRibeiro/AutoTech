@@ -3,7 +3,6 @@ const router = express.Router()
 const db = require("../conexao")
 
 
-//fazer rota para o vendedor mudar o status do produto****
 router.get("/", (req, res) => {
     db.getConnection((error, conn) => {
         if (error) {
@@ -20,7 +19,7 @@ router.get("/", (req, res) => {
                 return res.status(500).send({ error: error })
             }
 
-            res.status(500).send({ result: result })
+            res.status(200).send({ result: result })
         })
     })
 })
@@ -41,7 +40,7 @@ router.get("/codigo-compra/:codigo", (req, res) => {
                 return res.status(500).send({ error: error })
             }
 
-            res.status(500).send({ result: result })
+            res.status(200).send({ result: result })
         })
     })
 })
@@ -64,6 +63,29 @@ router.get("/:id", (req, res) => {
                 return res.status(500).send({ error: error })
             }
             res.status(200).send({ result: result })
+        })
+    })
+})
+
+router.get("/compras-cliente/:id_cliente", (req, res) => {
+    const id_cliente = req.params.id_cliente
+
+    db.getConnection((error, conn) => {
+        if (error) {
+            return res.status(500).send({
+                mensagem: "Não foi possível realizar a conexão",
+                error: error
+            })
+
+        }
+        const query = `SELECT * FROM compras WHERE id_cliente=${id_cliente}`;
+        conn.query(query, (error, result) =>{
+            conn.release()
+            if(error){
+                return res.status(500).send({error: error})
+            }
+
+            res.status(200).send({result: result})
         })
     })
 })
@@ -99,7 +121,7 @@ router.post("/comprar", (req, res) => {
             }
             if (result.length > 0) {
                 if (quantidade > result[0].estoque) {
-                    return res.status(409).send({ mensagem: "Não há tantos items no estoque" })
+                    return res.status(409).send({ mensagem: "Não há tantos items no estoque!" })
                 } else {
                     const novoEstoque = result[0].estoque - quantidade;
 
@@ -124,14 +146,14 @@ router.post("/comprar", (req, res) => {
                             if (error) {
                                 return res.status(500).send({ error: error })
                             }
-                            res.status(200).send({
+                            res.status(201).send({
                                 mensagem: "Produto comprado com sucesso!",
                             })
                         })
                     })
                 }
-            }else{
-               return res.status(404).send({ mensagem: "Produto não encontrado!" })
+            } else {
+                return res.status(404).send({ mensagem: "Produto não encontrado!" })
             }
         })
     })
@@ -139,11 +161,11 @@ router.post("/comprar", (req, res) => {
 
 router.put("/mudar-status/:id_compra", (req, res) => {
     const id_compra = req.params.id_compra;
-    const {id_vendedor, novoStatus} = req.body
+    const { id_vendedor, novoStatus } = req.body
 
     console.log(novoStatus)
-    if(novoStatus != "Saiu para entrega" && novoStatus != "Pedido entregue"){
-        return res.status(422).send({mensagem: "O novo status do produto não foi reconhecido"})
+    if (novoStatus != "Saiu para entrega" && novoStatus != "Pedido entregue") {
+        return res.status(422).send({ mensagem: "O novo status do produto não foi reconhecido" })
     }
 
     db.getConnection((error, conn) => {
@@ -153,12 +175,13 @@ router.put("/mudar-status/:id_compra", (req, res) => {
                 error: error
             })
         }
-        const query_get = `SELECT * FROM compras AS c INNER JOIN produtos AS p INNER JOIN vendedores AS v WHERE p.idProduto=c.id_produto AND p.id_vendedor=${id_vendedor} AND v.idVendedor=${id_vendedor}`
+        const query_get = `SELECT * FROM compras AS c INNER JOIN produtos AS p INNER JOIN vendedores AS v WHERE c.idCompra=${id_compra} AND p.id_vendedor=${id_vendedor} AND v.idVendedor=${id_vendedor}`
         conn.query(query_get, (error, result) => {
+            console.log(result)
             if (error) {
                 return res.status(500).send({ error: error })
             }
-            if(result.length > 0){
+            if (result.length > 0) {
                 const query = `UPDATE compras SET status='${novoStatus}'`
 
                 conn.query(query, (error, result) => {
@@ -170,7 +193,7 @@ router.put("/mudar-status/:id_compra", (req, res) => {
                     })
 
                 })
-            }else{
+            } else {
                 return res.status(404).send({ mensagem: "Pedido não encontrado!" })
             }
         })
