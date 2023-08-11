@@ -1,9 +1,11 @@
 const express = require("express")
 const morgan = require("morgan")
+const cors = require("cors")
 const app = express()
 
 app.use(morgan("dev"))
 app.use(express.json())
+app.use(cors())
 app.use("/uploads", express.static("uploads"))
 
 const rotaProdutos = require("./routes/produtos.routes")
@@ -35,7 +37,9 @@ app.use("/compras", rotaCompras)
 //     })
 // })
 
-
+app.use("/", (req, res, next) => {
+    return res.status(200).send({mensagem: "API funcionando"})
+})
 //quando não encontrar uma rota
 app.use((req, res, next) => {
     const erro = new Error("Não foi possível encontrar uma rota")
