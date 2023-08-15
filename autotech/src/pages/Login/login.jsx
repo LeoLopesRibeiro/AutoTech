@@ -17,7 +17,7 @@ export default function Login() {
    if(dados){
     const isLogged = auth.handleLogin(dados, "clientes")
     if(isLogged){
-      console.log(isLogged)
+      console.log(isLogged, "yyy")
       navigate('/')
     }else{
       console.log("Erro")

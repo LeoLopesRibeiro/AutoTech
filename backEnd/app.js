@@ -12,6 +12,7 @@ const rotaProdutos = require("./routes/produtos.routes")
 const rotaVendedores = require("./routes/vendedores.routes")
 const rotaClientes = require("./routes/clientes.routes")
 const rotaCompras = require("./routes/compras.routes")
+const rotaValidar = require("./routes/validar.routes")
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*")
@@ -30,6 +31,7 @@ app.use("/produtos", rotaProdutos)
 app.use("/vendedores", rotaVendedores)
 app.use("/clientes", rotaClientes)
 app.use("/compras", rotaCompras)
+app.use("/validate", rotaValidar)
 
 // app.use((req, res) => {
 //     res.status(200).send({

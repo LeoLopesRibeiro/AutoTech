@@ -1,45 +1,64 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useApi } from "../hooks/api";
+import Loading from "../components/Loading";
 
-export const AuthContext = createContext()
-
+export const AuthContext = createContext();
 
 // eslint-disable-next-line react/prop-types
-export function AuthProvider({children}){
-    const [user, setUser] = useState(null)
-    const api = useApi()
-    console.log(user)
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [autenticado, setAutenticado] = useState(false)
+  const api = useApi();
+  
 
-    // useEffect(()=> {
-    //     const token = localStorage.getItem("token")
-    //     const userStorage = localStorage.getItem("user")
-
-    //     if(userStorage && token){
-    //         const hasUser = JSON.parse(userStorage)?.filter(
-    //             (user)=> user.email === JSON.parse(token).email
-    //         )
-
-    //         if(hasUser){
-    //             setUser(hasUser[0])
-    //         }
-    //     }
-        
-    // }, [])
-
-    async function handleLogin(dados, tipo){
-        const data = await api.signin(dados, tipo)
-        console.log(data)
-        if(data.id && data.token){
-            setUser(dados.email)
-            return true
+  useEffect(() => {
+    async function validateToken() {
+      const storageData = localStorage.getItem("token");
+      if (storageData.length > 0) {
+        const data = await api.validateToken(storageData);
+        // console.log(data, "ERRO")
+        if (data.result) {
+          setAutenticado(true)
+          setUser(data.result.email);
+          setLoading(false);
         }
-
-        return false
+      }
+      setLoading(false);
     }
+    validateToken();
+  }, [api]);
 
-    const handleLogout = async () =>{
-        await api.logout()
-        setUser(null)
+  async function handleLogin(dados, tipo) {
+    const data = await api.signin(dados, tipo);
+    if (data.idCliente || (data.idVendedor && data.token)) {
+      setUser(dados.email);
+      //guardando o token no localstorage
+      // localStorage.setItem("dados", ); 
+      setAutenticado(true)
+      localStorage.setItem("token", data.token);
+      return true;
     }
-    return <AuthContext.Provider value={{user, handleLogin, handleLogout}}>{children}</AuthContext.Provider>
+    return false;
+  }
+
+  function handleLogout() {
+    console.log("Executou");
+    setUser(null);
+    setLoading(false)
+    localStorage.setItem("token", "");
+    setAutenticado(false)
+    window.location.href = "/login";
+  }
+
+  if (loading) {
+    return <Loading />;
+  }
+  return (
+    <AuthContext.Provider
+      value={{ user, autenticado, handleLogin, handleLogout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
