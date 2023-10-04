@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Cadastro from "../pages/Cadastro/cadastro";
-import Login from "../pages/Login/login";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
 import LandingPage from "../pages/LandingPage";
 import Perfil from "../pages/Perfil";
 import Header from "../components/Header";
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
       },
       {
         path: "/perfil",

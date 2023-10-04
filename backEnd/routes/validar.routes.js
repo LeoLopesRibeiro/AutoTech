@@ -14,7 +14,6 @@ router.post("/", (req, res) => {
     if(error){
         return res.status(500).send({ mensagem: "O token não é valido!", error: error })
     }
-    // console.log(decode)
     return res.status(200).send({result: decode})
   });
    

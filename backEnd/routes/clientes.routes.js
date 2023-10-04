@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require("../conexao")
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
+// const login = require("../middlewares/login")
 router.get("/", (req, res) => {
     db.getConnection((error, conn) => {
         if (error) {

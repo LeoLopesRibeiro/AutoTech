@@ -21,6 +21,14 @@ export const useApi = () => ({
       return error.response.data;
     }
   },
+  register: async (dados, tipo) => {
+    try{
+      const response = await api.post(`${tipo}/cadastro`, dados)
+      return response.data
+    }catch(error){
+      return error.response.data
+    }
+  },
   perfil: async (tipo, id) => {
     try {
       const response = await api.get(`${tipo}/${id}`);
