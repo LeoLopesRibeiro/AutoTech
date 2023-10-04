@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require("../conexao")
 const bcrypt = require('bcrypt')
 const jwt = require("jsonwebtoken")
+// const login = require("../middlewares/login")
 router.get("/", (req, res) => {
     db.getConnection((error, conn) => {
         if (error) {
@@ -159,8 +160,8 @@ router.post("/login", (req, res) => {
                     return res.status(200).send({
                         mensagem: "Autenticado com sucesso!",
                         token: token,
-                        id: result[0].idCliente,
-                        tipo: "cliente"
+                        idCliente: result[0].idCliente,
+                        tipo: "clientes"
                     })
                 }
             })

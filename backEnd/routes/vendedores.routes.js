@@ -101,9 +101,9 @@ router.post("/login", (req, res) => {
                     );
                     return res.status(200).send({
                         mensagem: "Autenticado com sucesso!",
+                        idVendedor: result[0].idVendedor,
                         token: token,
-                        id: result[0].idVendedor,
-                        tipo: "vendedor"
+                        tipo: "vendedores"
                     })
                 }
             })

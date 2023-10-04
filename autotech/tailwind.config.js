@@ -6,6 +6,13 @@ export default {
   ],
   theme: {
     extend: {},
+    colors:{
+      'cinza': '#E4E4E4',
+      'branco': '#FFF'
+    },
+    fontFamily:{
+      'poppins': ['Poppins', 'sans-serif']
+    }
   },
   plugins: [],
 }

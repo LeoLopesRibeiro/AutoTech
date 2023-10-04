@@ -1,37 +1,37 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useContext } from "react";
 import Cadastro from "../pages/Cadastro/cadastro";
-import Login from "../pages/Login/login";
-import LandingPage from "../pages/LandinPage";
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+import LandingPage from "../pages/LandingPage";
 import Perfil from "../pages/Perfil";
-import { AuthContext } from "../context/auth";
+import Header from "../components/Header";
+import PrivateRoutes from "../context/requireAuth";
 
-// eslint-disable-next-line react/prop-types
-const PrivateRoutes = ({Item}) => {
-  const auth = useContext(AuthContext)
-
-  console.log(auth)
-  if(!auth.user){
-    return <Login/>
-  }
-  return Item
-};
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <LandingPage />,
-  },
-  {
-    path: "/cadastro",
-    element: <Cadastro />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/perfil",
-    element: <PrivateRoutes Item={<Perfil/>}/>
+    element: <Header />,
+    children: [
+      {
+        path: "/",
+        element: <LandingPage />,
+      },
+      {
+        path: "/cadastro",
+        element: <Cadastro />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/perfil",
+        element: <PrivateRoutes Item={<Perfil />} />,
+      },
+    ],
   },
 ]);
 
