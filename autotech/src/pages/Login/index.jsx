@@ -11,7 +11,6 @@ export default function Login() {
   const [dados, setDados] = useState({
     email: "",
     senha: "",
-    confirmarSenha: "",
   });
 
   async function Log() {
@@ -29,70 +28,75 @@ export default function Login() {
   console.log(tipoLogin);
 
   return (
-    <div className="flex h-[calc(100vh-56px)] w-full items-center justify-center align-middle ">
-      <div className="flex h-3/4 w-2/4 rounded-lg bg-cinza shadow-2xl">
-        <div className="flex flex-col align-middle justify-between p-10">
-          <div>
-            <span className="border-b-2 border-black w-10 h-10 font-poppins font-medium text-lg pb-4">
+    <div className="flex h-[calc(100vh-56px)] w-full items-center justify-center align-middle font-poppins ">
+      <div className="flex h-3/4 w-2/4 rounded-lg bg-cinza shadow-2xl md:h-4/5 md:mt-5 sm:w-3/4">
+        <div className="flex flex-col align-middle justify-around  p-10 -mt-5 xl:w-full">
+          <div className="sm:text-center sm:w-full">
+            <span className="border-b-2 border-black w-10 h-10 font-poppins font-medium text-xl">
               Bem-vindo de volta
             </span>
           </div>
-          <div className="flex flex-row w-min">
+          <div className="flex flex-row w-min font-normal sm:flex-wrap sm:w-full sm:justify-center">
             <span
               onClick={() => setTipoLogin("clientes")}
-              className="cursor-pointer shadow-md p-2 w-28 text-center bg-branco"
+              className={`cursor-pointer shadow-md p-2 h-10 w-28 text-center bg-branco ${
+                tipoLogin === "clientes"
+                  ? "bg-preto ease-in duration-300 text-branco"
+                  : null
+              }`}
             >
               Clientes
             </span>
             <span
               onClick={() => setTipoLogin("vendedores")}
-              className="cursor-pointer shadow-md p-2 bg-white w-28 text-center bg-branco"
+              className={`cursor-pointer h-10 shadow-md p-2 w-28 text-center bg-branco ${
+                tipoLogin === "vendedores"
+                  ? "bg-preto ease-in duration-300 text-branco"
+                  : null
+              }`}
             >
               Vendedores
             </span>
           </div>
-          <input
-            type="email"
-            name="email"
-            value={dados.email}
-            placeholder="Digite o seu email"
-            onChange={(e) =>
-              setDados({ email: e.target.value, senha: dados.senha })
-            }
-          />
-          <input
-            type="password"
-            name="password"
-            value={dados.senha}
-            placeholder="Digite a senha"
-            onChange={(e) =>
-              setDados({ email: dados.email, senha: e.target.value })
-            }
-          />
-          <input
-            type="password"
-            name="password"
-            value={dados.confirmarSenha}
-            placeholder="Confirme a senha"
-            onChange={(e) =>
-              setDados({
-                email: dados.email,
-                senha: dados.senha,
-                confirmarSenha: e.target.value,
-              })
-            }
-          />
-          <button
-            type="submit"
-            className="text-red-500"
-            onClick={() => {
-              Log();
-            }}
-          >
-            Login
-          </button>
+          <div className="flex flex-col justify-between h-2/4 md:w-full">
+            <label className=" font-semibold text-sm">
+              Email
+            </label>
+              <input
+                className="w-80 h-10 p-2 shadow-md xl:w-full"
+                type="email"
+                name="email"
+                value={dados.email}
+                placeholder="Digite o seu email"
+                onChange={(e) =>
+                  setDados({ email: e.target.value, senha: dados.senha })
+                }
+              />
+            <label className=" font-semibold text-sm">
+              Senha
+            </label>
+              <input
+              className=" w-80 h-10 p-2 shadow-md xl:w-full"
+                type="password"
+                name="password"
+                value={dados.senha}
+                placeholder="Digite a senha"
+                onChange={(e) =>
+                  setDados({ email: dados.email, senha: e.target.value })
+                }
+              />
+            <button
+            className="w-80 h-10 p-2 shadow-md bg-preto text-branco xl:w-full xl:mt-10"
+              type="submit"
+              onClick={() => {
+                Log();
+              }}
+            >
+              Efetuar Login
+            </button>
+          </div>
         </div>
-        <div className="flex justify-center align-middle items-center w-full">
+        <div className="flex justify-center align-middle items-center w-full xl:hidden">
           <img src={loginIMG} className=" w-96 h-96"></img>
         </div>
       </div>
